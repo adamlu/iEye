@@ -1,0 +1,26 @@
+CACHE MANIFEST
+
+# VERSION 0.2
+
+# 直接缓存的文件
+CACHE:
+#index.html
+images/background.png
+images/favicon.png
+images/lower1.png
+images/lower2.png
+images/lower3.png
+images/upper1.png
+images/upper2.png
+images/upper3.png
+images/startup.png
+js/zepto.js
+js/event.js
+css/typo.css
+
+# 需要在线更新的文件
+NETWORK:
+http://wfssyxx.com/uploadfile/song/xiaoxingxing.mp3
+
+# 替代方案
+FALLBACK:
