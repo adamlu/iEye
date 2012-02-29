@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html manifest="ieye.manifest">
+<html>
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -387,7 +387,7 @@
 			});
 		},
         showNotice = function(){
-            if(/iphone/i.test(navigator.userAgent) && (window.innerHeight < 430) && localStorage && (!localStorage.getItem('noticeTime') || Math.floor((+new Date() - parseInt(localStorage.getItem('noticeTime'), 10))/(1000*60)) > 1)){
+            if(/iphone/i.test(navigator.userAgent) && ('standalone' in window.navigator) && !window.navigator.standalone && localStorage && (!localStorage.getItem('noticeTime') || Math.floor((+new Date() - parseInt(localStorage.getItem('noticeTime'), 10))/(1000*60)) > 1)){
                 $('.notice').css('top', '322px');
                 $('.notice a').on('click', function(e){
                     e.preventDefault();
