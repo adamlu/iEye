@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" /> 
+    <link rel="apple-touch-icon" href="images/favicon.png" />
+    <link rel="apple-touch-startup-image" href="images/startup.png" />
+	<link rel="stylesheet" href="css/typo.css" />
+	<title>爱瞳</title>
+</head>
+<body>
+	<style>
+    body{
+        font-family: Helvetica,Arial,sans-serif;
+    }
+    section{
+        width: 320px;
+        height: 460px;
+		margin: 0 auto;
+        position: relative;
+        background: url(images/background.png) no-repeat bottom;
+        text-align: center;
+        overflow: hidden;
+    }
+    section p, section .button{
+        margin: 3px;
+    }
+    section h2{
+        font-size: 18px;
+        padding: 10px;
+    }
+	#main{
+		position:relative;
+        display: none;
+        padding-top:10px;
+	}
+    #result{
+        display: none;
+    }
+	.background, .image, #main canvas{
+		border-radius: 300px;
+		height: 300px;
+		width: 300px;
+		position: absolute;
+		top:10px;
+		left:10px;
+	}
+	.background{
+		position:static;
+        margin: 0 10px 10px;
+	}
+	.image{
+		opacity: .8;
+	}
+	#main canvas{
+		border-radius: 0;
+		cursor: crosshair;
+	}
+	@-webkit-keyframes anim{
+		from {-webkit-transform: rotate(0deg);}
+		to {-webkit-transform: rotate(360deg);}
+	}
+	@-moz-keyframes anim{
+		from {-moz-transform: rotate(0deg);}
+		to {-moz-transform: rotate(360deg);}
+	}
+	.animation{
+		-webkit-animation: anim 8s infinite linear;
+		-moz-animation: anim 8s infinite linear;
+	}
+    #start ul{
+        display: -webkit-box;
+        display: -moz-box;
+    }
+    #start ul > li{
+        -webkit-box-flex: 1;
+        -moz-box-flex: 1;
+        list-style: none;
+    }
+    .opera #start ul{
+        overflow: hidden;
+    }
+    .opera #start ul > li{
+        float: left; margin: 0 8px;
+    }
+    #start .selected img{
+        border-color: #FF2835;
+        box-shadow: 0 0 10px #333 inset;
+    }
+    #start li img{
+        border: 5px solid transparent;
+        width: 80px;
+        height: 80px;
+        vertical-align: top;
+        border-radius: 5px;
+    }
+    #start .pics, #start .shadows{
+        margin-bottom: 10px;
+    }
+    .button input[type="button"]{
+        font-weight: bold;
+        font-size: 18px;
+        color: #050505;
+        padding: 3px 20px;
+        background: -moz-linear-gradient(
+            top,
+            #f78566 0%,
+            #c93510);
+        background: -webkit-gradient(
+            linear, left top, left bottom, 
+            from(#f78566),
+            to(#c93510));
+        border-radius: 10px;
+        -moz-border-radius: 8px;
+        -webkit-border-radius: 8px;
+        border: 1px solid #fabba8;
+    }
+    .button input[type="button"].green{
+        background: -webkit-linear-gradient(top, #61CD76 0, #5CC36F 100%);
+    }
+    #result canvas{
+        border: 5px solid #FF2835;
+        border-radius: 5px;
+        box-shadow: 0 0 20px #333 inset;
+    }
+    #bgmusic{
+        display: none;
+        width: 0;
+        height: 0;
+    }
+    .pause-music{
+        margin-left: 10px;
+    }
+    .caution{
+        padding: 10px;
+        display: none;
+    }
+    @media screen and (min-width: 600px) {
+        .caution{
+            display: block;
+        }
+    }
+    .notice{
+        width: 200px;
+        left: 50%;
+        margin-left: -110px;
+        top:-100px; 
+      background-color:#EDEDED;
+      border:2px solid #666666;
+      line-height:1.3em;
+      padding:10px;
+      position:absolute;
+      text-align:center;
+      -moz-border-radius:10px;
+      -webkit-border-radius:10px;
+      -moz-box-shadow:0 0 5px #888888;
+      -webkit-box-shadow:0 0 5px #888888;
+      -webkit-transition: top 2s ease-out;
+    }
+    .notice::after, .notice::before{
+      content: '';
+      border-color: #666666 transparent transparent transparent;
+      border-style: solid;
+      border-width: 10px;
+      height:0;
+      width:0;
+      position:absolute;
+      bottom:-22px;
+      left:98px;  
+    }
+    .notice::after{
+      border-color: #EDEDED transparent transparent transparent;
+      bottom:-19px;
+    }
+    .notice a{
+        float: right;
+    }
+	</style>
+	<section id="start">
+        <h2>选择图案</h2>
+        <ul class="pics"></ul>
+        <h2>选择背景</h2>
+        <ul class="shadows"></ul>
+        <h2>设置时间</h2>
+        <div class="settime"><input type="range" id="range_time" value="10" min="3" max="15"><br /><time class="time-all">10</time> 分钟</div>
+		<div class="button"><input type="button" class="start" value="开始" /></div>
+	</section>
+	<section id="main">
+		<div class="background"></div>
+		<div class="image"></div>
+		<canvas id="canvas" width="300" height="300"></canvas>
+        <audio id="bgmusic" src="http://wfssyxx.com/uploadfile/song/xiaoxingxing.mp3" loop autobuffer></audio>
+        <p>请用手指在屏幕上画出上面的图案</p>
+        <p>剩余时间: <time class="time-left"></time><a href="#" class="pause-music">暂停背景音乐</a></p>
+        <div class="button"><input type="button" class="stop" value="完成" /> <input type="button" class="start" value="重新开始" /> <input type="button" class="back" value="返回" /></div>
+	</section>
+	<section id="result">
+        <h2>练习结果</h2>
+        <canvas id="canvas_result"></canvas>
+        <p>练习时间: <time class="time-prac"></time></p>
+        <div class="button"><input type="button" class="share green" value="分享" /> <input type="button" class="back" value="返回" /></div>
+	</section>
+    <div class="caution">
+        <h2>你正在使用大屏设备进行浏览, 要获得更好的效果, 请选择iPhone或Android移动设备访问此Web App, 并添加到你的主屏幕启动.</h2>
+    </div>
+    <div class="notice"><a href="#">X</a>安装这个Web App到你的手机, 点击下面的箭头并且选择"添加到桌面".</div>
+	<script src="js/zepto.js"></script>
+	<script src="js/event.js"></script>
+	<script>
+	$(function(){
+		window.requestAnimFrame = (function(){
+		      return  window.requestAnimationFrame       || 
+		              window.webkitRequestAnimationFrame || 
+		              window.mozRequestAnimationFrame    || 
+		              window.oRequestAnimationFrame      || 
+		              window.msRequestAnimationFrame     || 
+		              function( callback ){
+		                window.setTimeout(callback, 1000 / 60);
+		              };
+		})();
+		
+		window.cancelAnimFrame = (function() {
+		    return window.cancelAnimationFrame          ||
+		        window.webkitCancelRequestAnimationFrame    ||
+		        window.mozCancelRequestAnimationFrame       ||
+		        window.oCancelRequestAnimationFrame     ||
+		        window.msCancelRequestAnimationFrame        ||
+		        function(id){clearTimeout(id);}
+		})();
+
+        if(/opera/i.test(navigator.userAgent)){
+            $(document.body).addClass('opera');
+        }
+		
+		const SHADOWS = ['images/lower1.png', 'images/lower2.png', 'images/lower3.png'];
+		const PICS = ['images/upper1.png', 'images/upper2.png', 'images/upper3.png'];
+		
+		var MOUSE_DOWN = 'ontouchstart' in document ? 'touchstart' : 'mousedown',
+		MOUSE_UP = 'ontouchend' in document ? 'touchend' : 'mouseup',
+		MOUSE_MOVE = 'ontouchmove' in document ? 'touchmove' : 'mousemove',
+		rangeTime = $('#range_time'),
+		canvas = $('#canvas'),
+        startSec = $('#start'),
+        mainSec = $('#main'),
+        resultSec = $('#result'),
+        background = $('.background'),
+        bgmusic = $('#bgmusic'),
+        pauseMusic = $('.pause-music'),
+		ctx = canvas[0].getContext('2d'),
+		timer = 0,
+        picIndex = 0,
+        shadowIndex = 0,
+        timeStart,
+		testTime = rangeTime.val(),
+		getTouch = function(e){
+			return e.touches && e.touches.length ? e.touches[0] : e;
+		},
+		setTime = function(time, elem){
+			var m = Math.floor(time/(60*1000)), s = Math.floor((time-m*60*1000)/1000);
+			$(elem).html(m+'分'+s+'秒');
+		},
+		startTimer = function(){
+			timer = requestAnimFrame(function(timestamp){
+				timestamp = timestamp || +new Date();
+                var timedelta = testTime*60*1000 - (timestamp - timeStart);
+                if(timedelta < 1000){
+                    completeTest();
+                }
+				setTime(testTime*60*1000 - (timestamp - timeStart), '.time-left');
+				startTimer();
+			});
+		},
+        scrollToTop = function(){
+            setTimeout(function(){window.scrollTo(0, 1);}, 500);
+        },
+        renderStart = function(){
+            var pics = $('#start .pics'), shadows = $('#start .shadows');
+            var pics_data = $.map(PICS, function(v, i){
+                return '<img src="'+v+'" />';
+            });
+            var shadows_data = $.map(SHADOWS, function(v, i){
+                return '<img src="'+v+'" />';
+            });
+            pics.html('<li>'+pics_data.join('</li><li>')+'</li>');
+            shadows.html('<li>'+shadows_data.join('</li><li>')+'</li>');
+            $(pics.find('li')[picIndex]).addClass('selected');
+            $(shadows.find('li')[shadowIndex]).addClass('selected');
+            $('#start').delegate('li', 'click', function(e){
+                var target = $(e.target);
+                if(target.not('li')){
+                   target = target.parent(); 
+                }
+                var parentEl = target.parents(['ul']);
+                parentEl.find('li').removeClass('selected');
+                target.addClass('selected');
+                if(parentEl.hasClass('pics')){
+                    picIndex = target.index();
+                }
+                if(parentEl.hasClass('shadows')){
+                    shadowIndex = target.index();
+                }
+            });
+        },
+        setMain = function(){
+            background.css('background-image', 'url('+SHADOWS[shadowIndex]+')').addClass('animation');
+            $('#main .image').css('background-image', 'url('+PICS[picIndex]+')');
+            ctx.clearRect(0, 0, 300, 300);
+        },
+        setMusicPause = function(setPaused){
+            if(setPaused){
+                pauseMusic.html('开启背景音乐').addClass('paused');
+                bgmusic[0].pause();
+            }else{
+                pauseMusic.html('暂停背景音乐').removeClass('paused');
+                bgmusic[0].play();
+            }
+        },
+        startTest = function(){
+			timeStart = +new Date();
+			startTimer();
+            startSec.hide();
+            mainSec.show();
+            setMain();
+			drawPic();
+            setMusicPause(false);
+        },
+        completeTest = function(){
+			cancelAnimFrame(timer);
+            setTime(+new Date() - timeStart, '.time-prac');
+			background.removeClass('animation');
+            mainSec.hide();
+            resultSec.show();
+            drawResult();
+            setMusicPause(true);
+        },
+        drawResult = function(){
+            var canvas_result = $('#canvas_result')[0], ctx_result, _w = 250, _h = 250;
+            canvas_result.width = _w;
+            canvas_result.height = _h;
+
+            if(ctx_result = canvas_result.getContext('2d')){
+                ctx_result.clearRect(0, 0, _w, _h);
+                var img = new Image(), img2 = new Image();
+                img.src = PICS[picIndex];
+                img2.src = canvas[0].toDataURL();
+                img.onload = function(){
+                    ctx_result.drawImage(img, 0, 0, _w, _h);
+                }
+                img2.onload = function(){
+                    ctx_result.drawImage(img2, 0, 0, _w, _h);
+                }
+            }
+        },
+		drawPic = function(){
+			if(!ctx)return;
+			ctx.lineWidth = 10;
+			ctx.strokeStyle = 'rgba(0, 0, 0, .8)';
+			ctx.lineCap="round";
+			ctx.lineJoin = "round";
+			var deltX, deltY;
+			var onMove = function(e){
+				var _e = getTouch(e);
+				var x = _e.pageX - canvas.offset()['left'], y = _e.pageY - canvas.offset()['top'];
+				ctx.save();
+				ctx.translate(deltX, deltY);
+				ctx.beginPath();
+				ctx.moveTo(0, 0);
+				ctx.lineTo(x-deltX, y-deltY);
+				deltX = x;
+				deltY = y;
+				ctx.stroke();
+				ctx.restore();
+			};
+			canvas.on(MOUSE_DOWN, function(e){
+				e.preventDefault();
+				var _e = getTouch(e);
+				ctx.beginPath();
+				var x = deltX = _e.pageX - canvas.offset()['left'];
+				var y = deltY = _e.pageY - canvas.offset()['top'];
+				ctx.moveTo(x, y);
+				canvas.on(MOUSE_MOVE, onMove);
+				$(document.body).on(MOUSE_UP, function(){
+					canvas.off(MOUSE_MOVE, onMove);
+				});
+			});
+		},
+        showNotice = function(){
+            if(/iphone/i.test(navigator.userAgent) && ('standalone' in window.navigator) && !window.navigator.standalone && localStorage && (!localStorage.getItem('noticeTime') || Math.floor((+new Date() - parseInt(localStorage.getItem('noticeTime'), 10))/(1000*60)) > 1)){
+                $('.notice').css('top', '322px');
+                $('.notice a').on('click', function(e){
+                    e.preventDefault();
+                    $('.notice').css('top', '500px');
+                });
+                localStorage.setItem('noticeTime', +new Date());
+           }
+        };
+
+        //Start
+        scrollToTop();
+        renderStart();
+        showNotice();
+		
+		$('.start').on('click', startTest);
+		
+		rangeTime.on('change', function(e){
+			testTime = rangeTime.val();
+			$('.time-all').html(testTime);
+		});
+		
+		$('.stop').on('click', completeTest);
+
+		$('#main .back').on('click', function(e){
+            mainSec.hide();
+            startSec.show();
+            setMusicPause(true);
+		});
+        
+		$('#result .back').on('click', function(e){
+            resultSec.hide();
+            startSec.show();
+		});
+
+        $('.pause-music').on('click', function(e){
+            e.preventDefault();
+            if(pauseMusic.hasClass('paused')){
+                setMusicPause(false);
+            }else{
+                setMusicPause(true);
+            }
+        });
+
+        $(document).on('touchmove', function(e){
+            if(e.target.type !== 'range'){
+                e.preventDefault();
+            }
+        });
+		
+	});
+	</script>
+</body>
+</html>
