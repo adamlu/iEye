@@ -1,7 +1,7 @@
 
-这是HTML5小组主办的"HTML5 Code Jam"的作品"爱瞳"
-目前实现比较简单
-有时间的话打算使用Backbone.js来重构, 即index_mvc.html
+这是HTML5小组主办的"HTML5 Code Jam"的作品"爱瞳",
+目前实现比较简单,
+使用了Zepto/Backbone/Mustache/Underscore重构过了。
 
 联系方式:
 博客: http://adamlu.com/
